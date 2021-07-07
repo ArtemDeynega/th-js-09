@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/ArtemDeynega/th-js-09#readme",
   "dependencies": {
-    "handlebars": "^4.7.7"
+    "handlebars": "^4.7.7",
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@babel/cli": "^7.14.5",
