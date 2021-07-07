@@ -1,0 +1,31 @@
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+
+module.exports = {
+    module: {
+        rules: [
+            {
+                test: /\.scss$/,
+                use: ['style-loader', 'css-loader', 'sass-loader'],
+            },
+            {
+                test: /\.js$/,
+                use: ['babel-loader'],
+            },
+            {
+                test: /\.handlebars$/,
+                loader: 'handlebars-loader',
+            },
+            {
+                test: /\.hbs$/,
+                exclude: /node_modules/,
+                use: 'handlebars-loader',
+            },
+        ],
+    },
+    plugins: [
+        new HtmlWebpackPlugin({
+            template: path.resolve(__dirname, 'src', 'index.html'),
+        }),
+    ],
+};
