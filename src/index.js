@@ -1,47 +1,59 @@
+import { USER_NAME } from './utils/constants';
+
 import './styles/main.scss';
-import './styles/_button.scss';
-// import { test } from './utils/utils';
-// import menuTemplate from './templates/menu.hbs';
-import './js/conspekt';
-import './js/storage';
-import { load, save } from './js/storage';
+import template from './templates/main.hbs';
+import data from './data/data.json';
+import {
+    setLocalStorage,
+    getLocalStorage,
+} from './utils/utils';
 
-// test();
+import { throttle } from 'lodash';
 
-// class Test {
-//     constructor(item) {
-//         this.item = item;
-//     }
-//     consoleItem() {
-//         console.log(this.item);
-//     }
-// }
+let tmpUserNameState = '';
 
-// const test1 = new Test('Привет');
+window.onload = () => {
+    const container = document.getElementById('container');
 
-// test1.consoleItem();
+    const isName = getLocalStorage();
 
-// const menuData = {
-//     title: 'Eat it createElement, templates rule!',
-//     items: ['Handlebars', 'LoDash', 'Pug', 'EJS', 'lit-html'],
-// };
+    //Важно
 
-// const markup = menuTemplate(menuData);
+    // localStorage.setItem('test', JSON.stringify(data));
+    // try {
+    //     const test = localStorage.getItem('test');
+    //     const test2 = JSON.parse(test);
+    //     console.log(test2.navItems);
+    // } catch (error) {
+    //     console.log(error);
+    // }
 
-// const container = document.querySelector('.menu-container');
-// container.innerHTML = markup;
+    if (isName) {
+        const newData = Object.assign({}, data, {
+            name: isName,
+        });
+        container.innerHTML = template(newData);
+    } else {
+        container.innerHTML = template(data);
 
-// const dog = {
-//     name: 'Mango',
-//     age: 3,
-//     isHapy: true,
-// };
+        const nameInput =
+            document.getElementById('nameInput');
+        const saveUser =
+            document.getElementById('saveUser');
 
-// const dogJson = JSON.stringify(dog);
+        nameInput.addEventListener(
+            'input',
+            throttle(evt => {
+                tmpUserNameState = evt.target.value;
+            }, 250),
+        );
 
-// console.log(dogJson);
-
-// const json = '{"name":"Mango","age":3,"isHappy":true}';
-
-// const dog = JSON.parse(json);
-// console.log(dog);
+        saveUser.addEventListener('click', () => {
+            setLocalStorage(tmpUserNameState);
+            const newData = Object.assign({}, data, {
+                name: tmpUserNameState,
+            });
+            container.innerHTML = template(newData);
+        });
+    }
+};
