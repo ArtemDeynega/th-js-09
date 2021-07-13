@@ -1,4 +1,4 @@
-import { reject } from 'lodash';
+import { get, reject } from 'lodash';
 import './js/module-11';
 
 // import { USER_NAME } from './utils/constants';
@@ -260,15 +260,40 @@ import './js/module-11';
 //     .catch(error => console.lof(error));
 
 //  Цепочки промисов Статические методы класса Promise/Promise.race()
-const makePromise = (text, delay) => {
-    return new Promise(resolve => {
-        setTimeout(() => resolve(text), delay);
-    });
+// const makePromise = (text, delay) => {
+//     return new Promise(resolve => {
+//         setTimeout(() => resolve(text), delay);
+//     });
+// };
+
+// const promiseA = makePromise('promise A', 1000);
+// const promiseB = makePromise('promise B', 3000);
+
+// Promise.race([promiseA, promiseB])
+//     .then(result => console.log(result)) // promise A
+//     .catch(error => console.log(error));
+
+//   Цепочки промисов Статические методы класса Promise Promise.resolve(), Promise.reject() и Promise.finally()
+
+// const getMessage = function (callback) {
+//     const input = prompt('Введите сообщение');
+
+//     callback(input);
+// };
+
+// const logger = message => console.log(message);
+// getMessage(logger);
+
+// то что выше Превращается в следующее.
+
+const getMessage = function () {
+    const input = prompt('Введите сообщение!');
+
+    return Promise.resolve(input);
 };
 
-const promiseA = makePromise('promise A', 1000);
-const promiseB = makePromise('promise B', 3000);
+const logger = message => console.log(message);
 
-Promise.race([promiseA, promiseB])
-    .then(result => console.log(result)) // promise A
-    .catch(error => console.log(error));
+// getMessage().then(message => logger(message));
+// или еще короче
+getMessage().then(logger);
