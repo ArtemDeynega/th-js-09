@@ -213,3 +213,31 @@ import './js/module-11';
 //     .then(data => console.log(data))
 //     .catch(error => console.log(error))
 //     .finally(() => console.log('Финиш - finally()'));
+
+//  Цепочки промисов
+
+const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+        resolve(5);
+    }, 2000);
+});
+
+promise
+    .then(value => {
+        console.log(value); // 5
+        return value * 2;
+    })
+    .then(value => {
+        console.log(value); // 10
+        return value * 3;
+    })
+    .then(value => {
+        console.log(value); // 30
+        return value * 4;
+    })
+    .then(value => {
+        console.log(value); //120
+    })
+    .catch(error => {
+        console.log(error);
+    });
