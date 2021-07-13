@@ -243,18 +243,32 @@ import './js/module-11';
 //     });
 
 //  Цепочки промисов Статические методы класса Promise/ Promise.all()
+// const makePromise = (text, delay) => {
+//     return new Promise(resolve => {
+//         setTimeout(() => resolve(text), delay);
+//     });
+// };
+
+// const promiseA = makePromise('promiseA', 1000);
+// const promiseB = makePromise('promiseB', 3000);
+// /*
+//  * Выполнится спустя 3 секунды, когда выполнится второй промис с задержкой в 3c.
+//  * Первый выполнится через секунду и просто будет готов
+//  */
+// Promise.all([promiseA, promiseB])
+//     .then(result => console.log(result)) // ["promiseA", "promiseB"]
+//     .catch(error => console.lof(error));
+
+//  Цепочки промисов Статические методы класса Promise/Promise.race()
 const makePromise = (text, delay) => {
     return new Promise(resolve => {
         setTimeout(() => resolve(text), delay);
     });
 };
 
-const promiseA = makePromise('promiseA', 1000);
-const promiseB = makePromise('promiseB', 3000);
-/*
- * Выполнится спустя 3 секунды, когда выполнится второй промис с задержкой в 3c.
- * Первый выполнится через секунду и просто будет готов
- */
-Promise.all([promiseA, promiseB])
-    .then(result => console.log(result)) // ["promiseA", "promiseB"]
-    .catch(error => console.lof(error));
+const promiseA = makePromise('promise A', 1000);
+const promiseB = makePromise('promise B', 3000);
+
+Promise.race([promiseA, promiseB])
+    .then(result => console.log(result)) // promise A
+    .catch(error => console.log(error));
