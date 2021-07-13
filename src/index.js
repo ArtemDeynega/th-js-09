@@ -216,28 +216,45 @@ import './js/module-11';
 
 //  Цепочки промисов
 
-const promise = new Promise((resolve, reject) => {
-    setTimeout(() => {
-        resolve(5);
-    }, 2000);
-});
+// const promise = new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//         resolve(5);
+//     }, 2000);
+// });
 
-promise
-    .then(value => {
-        console.log(value); // 5
-        return value * 2;
-    })
-    .then(value => {
-        console.log(value); // 10
-        return value * 3;
-    })
-    .then(value => {
-        console.log(value); // 30
-        return value * 4;
-    })
-    .then(value => {
-        console.log(value); //120
-    })
-    .catch(error => {
-        console.log(error);
+// promise
+//     .then(value => {
+//         console.log(value); // 5
+//         return value * 2;
+//     })
+//     .then(value => {
+//         console.log(value); // 10
+//         return value * 3;
+//     })
+//     .then(value => {
+//         console.log(value); // 30
+//         return value * 4;
+//     })
+//     .then(value => {
+//         console.log(value); //120
+//     })
+//     .catch(error => {
+//         console.log(error);
+//     });
+
+//  Цепочки промисов Статические методы класса Promise/ Promise.all()
+const makePromise = (text, delay) => {
+    return new Promise(resolve => {
+        setTimeout(() => resolve(text), delay);
     });
+};
+
+const promiseA = makePromise('promiseA', 1000);
+const promiseB = makePromise('promiseB', 3000);
+/*
+ * Выполнится спустя 3 секунды, когда выполнится второй промис с задержкой в 3c.
+ * Первый выполнится через секунду и просто будет готов
+ */
+Promise.all([promiseA, promiseB])
+    .then(result => console.log(result)) // ["promiseA", "promiseB"]
+    .catch(error => console.lof(error));
