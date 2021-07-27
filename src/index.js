@@ -1,299 +1,86 @@
-import { get, reject } from 'lodash';
-import './js/module-11';
+import './styles/main.scss';
+window.onload = () => {
+    const clock = document.getElementById('clockdiv');
+    const pauseBtn = document.getElementById('pause');
+    const resumeBtn = document.getElementById('resume');
+    const startBtn = document.getElementById('start');
 
-// import { USER_NAME } from './utils/constants';
+    const timerMinutes = 10;
 
-// import './styles/main.scss';
-// import template from './templates/main.hbs';
-// import data from './data/data.json';
-// import {
-//     setLocalStorage,
-//     getLocalStorage,
-// } from './utils/utils';
+    let timerInterval;
+    let timerLeft;
+    let paused = false;
+    let deadLine;
 
-// import { throttle } from 'lodash';
+    const timeRemaining = endDate => {
+        let diff = Date.parse(endDate) - Date.now();
+        let formattedSeconds = diff / 1000;
+        let formattedMinutes = diff / 60000;
+        let seconds = Math.floor(formattedSeconds % 60);
+        let minutes = Math.floor(formattedMinutes % 60);
 
-// let tmpUserNameState = '';
+        return {
+            diff,
+            seconds,
+            minutes,
+        };
+    };
 
-// window.onload = () => {
-//     const container = document.getElementById('container');
+    const tick = () => {
+        let getTime = timeRemaining(deadLine);
+        let seconds = getTime.seconds;
+        let minutes = getTime.minutes;
 
-//     const isName = getLocalStorage();
+        let secondsBeautified = seconds
+            .toString()
+            .padStart(2, 0);
 
-//     //Важно
+        let minutesBeautified = minutes
+            .toString()
+            .padStart(2, 0);
 
-//     // localStorage.setItem('test', JSON.stringify(data));
-//     // try {
-//     //     const test = localStorage.getItem('test');
-//     //     const test2 = JSON.parse(test);
-//     //     console.log(test2.navItems);
-//     // } catch (error) {
-//     //     console.log(error);
-//     // }
+        clock.innerHTML = `${minutesBeautified}:${secondsBeautified}`;
+        if (getTime.diff === 0) {
+            clearInterval(timerInterval);
+        }
+    };
 
-//     if (isName) {
-//         const newData = Object.assign({}, data, {
-//             name: isName,
-//         });
-//         container.innerHTML = template(newData);
-//     } else {
-//         container.innerHTML = template(data);
+    const startTimer = timerLeft => {
+        if (timerLeft) {
+            timerInterval = setInterval(tick, 1000);
+        } else {
+            let currentTime = Date.now();
 
-//         const nameInput =
-//             document.getElementById('nameInput');
-//         const saveUser =
-//             document.getElementById('saveUser');
+            deadLine = new Date(
+                currentTime + timerMinutes * 60 * 1000,
+            );
+            timerInterval = setInterval(tick, 1000);
+        }
+    };
+    const pauseTimer = () => {
+        if (!paused) {
+            paused = true;
+            clearInterval(timerInterval);
+            timerLeft = timeRemaining(deadLine).diff;
+        }
+    };
+    const resumeTimer = () => {
+        if (paused) {
+            paused = false;
+            deadLine = new Date(
+                Date.parse(new Date()) + timerLeft,
+            );
+            startTimer(true);
+        }
+    };
 
-//         nameInput.addEventListener(
-//             'input',
-//             throttle(evt => {
-//                 tmpUserNameState = evt.target.value;
-//             }, 250),
-//         );
-
-//         saveUser.addEventListener('click', () => {
-//             setLocalStorage(tmpUserNameState);
-//             const newData = Object.assign({}, data, {
-//                 name: tmpUserNameState,
-//             });
-//             container.innerHTML = template(newData);
-//         });
-//     }
-// };
-
-// Сеттеры Date
-// Для установки даты существует 2 способа. Установим 1500000000000мс
-// с начала эры Unix с помощью конструктора
-
-// const date = new Date(2017, 6, 14, 5, 40, 0, 0);
-// // проверим
-// console.log(
-//     `2017,6,14,5, 40 соотвествует ${date.getTime()}`,
-// );
-// /* С помощью методов set */
-// // Создадим новый объект с текущей датой
-
-// const secondDate = new Date();
-
-// // Изменим год и в нем же месяц и день месяца
-// secondDate.setFullYear(2017, 6, 14);
-// // Изменим час и в не же минуты, секунды и милесекунды
-// secondDate.setHours(5, 40, 0, 0);
-// // Проверим
-// console.log(
-//     `2017,6,14,5,40 соотвествует ${secondDate.getTime()}`,
-// );
-
-// Форматирование и вывод дат
-// let date = new Date();
-
-// // формат ввода
-// const options = {
-//     weekday: 'long',
-//     year: 'numeric',
-//     month: 'short',
-//     day: 'numeric',
-//     hour: '2-digit',
-//     minute: '2-digit',
-// };
-
-// // Украина
-// const localeUk = date.toLocaleDateString('UK-uk', options);
-
-// console.log(localeUk);
-
-// // USA
-// const localeUs = date.toLocaleDateString('en-US', options);
-// console.log(localeUs);
-
-// Promise API
-// const promise = new Promise((resolve, reject) => {
-//     /*
-//      * Эта функция будет вызвана автоматически. В ней можно выполнять
-//      * любые асинхронные операции. Когда они завершатся — нужно
-//      * вызвать одно из: resolve(результат) при успешном выполнении,
-//      * или reject(ошибка) при ошибке.
-//      */
-//     setTimeout(() => {
-//         resolve(console.log('success!'));
-//     }, 2000);
-// });
-
-// Promise and then
-
-// const promise = new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//         /*
-//          * Если какое-то условие выполняется, то есть все хорошо,
-//          * вызываем resolve и получает данные. Условие зависит от задачи.
-//          */
-//         resolve('Данные переданы в функцию resolve :)');
-//         // Если что-то не так, вызываем reject и передаем ошибку
-//         // reject("Данные переданны в функцию reject :(")
-//     }, 2000);
-// });
-// // Выполнится мгновенно
-// console.log('ПЕРЕД promise.then');
-
-// const onResolve = data => {
-//     console.log('ВНУТРИ promise.then - onResolve');
-//     console.log(data); // "Данные переданы в функцию resolve :)"
-// };
-
-// const onReject = error => {
-//     console.log('ВНУТРИ promise.then - onReject');
-//     console.log(error); // 'Ошибка передана в функцию reject :(
-// };
-
-// promise.then(
-//     // будет вызвана через 2 секунды, если обещание выполнится успешно
-//     onResolve,
-//     // будет вызвана через 2 секунды, если обещание выполнится с ошибкой
-//     onReject,
-// );
-
-// // Выполнится мгновенно
-// console.log('ПОСЛЕ promise.then');
-
-// Если onResolve и onReject не содержат сложной логики, их объявляют как инлайн функции в методе then.
-
-// const promise = new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//         // Если все ок, то вызывается resolve и передаем данные
-//         resolve('Данные переданы в функцию resolve :)');
-//         // Если что-то не так, вызываем reject и передаем ошибку
-//         //         // reject("Данные переданны в функцию reject :(")
-//     }, 2000);
-// });
-// // Выполнится мгновенно
-// console.log('ПЕРЕД promise.then');
-
-// promise.then(
-//     // Будет вызвана через 2 секунды, если обещание выполнится успешно
-//     data => {
-//         console.log('ВНУТРИ promise.then ');
-//         console.log(data); // "Данные переданы в функцию resolve :)"
-//     },
-//     error => {
-//         console.log('ВНУТРИ promise.then ');
-//         console.log(error); // 'Ошибка передана в функцию reject :(
-//     },
-// );
-// // Выполнится мгновенно
-// console.log('ПОСЛЕ promise.then');
-
-// Promise and catch
-// Создадим обещание, сделаем задержку на 2 секунды, вызовем reject, имитируя выполнение промиса с ошибкой.
-
-// const promise = new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//         reject('Произошла Ошибка! :(');
-//     }, 2000);
-// });
-// /*
-//  * then не выполнится так как в функции fn, внутри new Promise(fn),
-//  * был вызван reject(). А catch как раз выполнится через 2 секунды
-//  */
-// promise
-//     .then(data => {
-//         console.log(data);
-//     })
-//     .catch(error => {
-//         console.log(error);
-//     });
-
-// Promise adn finally
-// const promise = new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//         resolve('Успех!');
-//     }, 2000);
-// });
-
-// promise
-//     .then(data => console.log(data))
-//     .catch(error => console.log(error))
-//     .finally(() => console.log('Финиш - finally()'));
-
-//  Цепочки промисов
-
-// const promise = new Promise((resolve, reject) => {
-//     setTimeout(() => {
-//         resolve(5);
-//     }, 2000);
-// });
-
-// promise
-//     .then(value => {
-//         console.log(value); // 5
-//         return value * 2;
-//     })
-//     .then(value => {
-//         console.log(value); // 10
-//         return value * 3;
-//     })
-//     .then(value => {
-//         console.log(value); // 30
-//         return value * 4;
-//     })
-//     .then(value => {
-//         console.log(value); //120
-//     })
-//     .catch(error => {
-//         console.log(error);
-//     });
-
-//  Цепочки промисов Статические методы класса Promise/ Promise.all()
-// const makePromise = (text, delay) => {
-//     return new Promise(resolve => {
-//         setTimeout(() => resolve(text), delay);
-//     });
-// };
-
-// const promiseA = makePromise('promiseA', 1000);
-// const promiseB = makePromise('promiseB', 3000);
-// /*
-//  * Выполнится спустя 3 секунды, когда выполнится второй промис с задержкой в 3c.
-//  * Первый выполнится через секунду и просто будет готов
-//  */
-// Promise.all([promiseA, promiseB])
-//     .then(result => console.log(result)) // ["promiseA", "promiseB"]
-//     .catch(error => console.lof(error));
-
-//  Цепочки промисов Статические методы класса Promise/Promise.race()
-// const makePromise = (text, delay) => {
-//     return new Promise(resolve => {
-//         setTimeout(() => resolve(text), delay);
-//     });
-// };
-
-// const promiseA = makePromise('promise A', 1000);
-// const promiseB = makePromise('promise B', 3000);
-
-// Promise.race([promiseA, promiseB])
-//     .then(result => console.log(result)) // promise A
-//     .catch(error => console.log(error));
-
-//   Цепочки промисов Статические методы класса Promise Promise.resolve(), Promise.reject() и Promise.finally()
-
-// const getMessage = function (callback) {
-//     const input = prompt('Введите сообщение');
-
-//     callback(input);
-// };
-
-// const logger = message => console.log(message);
-// getMessage(logger);
-
-// то что выше Превращается в следующее.
-
-const getMessage = function () {
-    const input = prompt('Введите сообщение!');
-
-    return Promise.resolve(input);
+    pauseBtn.addEventListener('click', () => {
+        pauseTimer();
+    });
+    startBtn.addEventListener('click', () => {
+        startTimer(false);
+    });
+    resumeBtn.addEventListener('click', () => {
+        resumeTimer();
+    });
 };
-
-const logger = message => console.log(message);
-
-// getMessage().then(message => logger(message));
-// или еще короче
-getMessage().then(logger);
