@@ -13,9 +13,8 @@ export const getLocalStorage = () => {
         const isNameExists =
             localStorage.getItem(USER_NAME);
 
-        if (!isNameExists) {
-            return false;
-        }
+        if (!isNameExists) return false;
+
         return isNameExists;
     } catch (error) {
         console.log(error);

@@ -1,86 +1,108 @@
 import './styles/main.scss';
-window.onload = () => {
-    const clock = document.getElementById('clockdiv');
-    const pauseBtn = document.getElementById('pause');
-    const resumeBtn = document.getElementById('resume');
-    const startBtn = document.getElementById('start');
+import template from './templates/main.hbs';
+import { doRequests, getUsers } from './utils/requests';
+import { API_METHODS } from './utils/constants';
 
-    const timerMinutes = 10;
+let page = 1;
+let dataState = [];
+let inputState = '';
+let isEditID = null;
+const limit = 16;
 
-    let timerInterval;
-    let timerLeft;
-    let paused = false;
-    let deadLine;
+window.onload = async () => {
+    const wrapper = document.getElementById(
+        'contentWrapper',
+    );
+    const getData = await doRequests(API_METHODS.GET);
 
-    const timeRemaining = endDate => {
-        let diff = Date.parse(endDate) - Date.now();
-        let formattedSeconds = diff / 1000;
-        let formattedMinutes = diff / 60000;
-        let seconds = Math.floor(formattedSeconds % 60);
-        let minutes = Math.floor(formattedMinutes % 60);
+    if (getData) {
+        contentWrapper.innerHTML = template({
+            data: getData,
+        });
+    }
 
-        return {
-            diff,
-            seconds,
-            minutes,
-        };
-    };
+    const addBtn = document.getElementById('addBtn');
 
-    const tick = () => {
-        let getTime = timeRemaining(deadLine);
-        let seconds = getTime.seconds;
-        let minutes = getTime.minutes;
+    // --------
 
-        let secondsBeautified = seconds
-            .toString()
-            .padStart(2, 0);
+    const modal = new bootstrap.Modal(
+        document.getElementById('exampleModal'),
+    );
 
-        let minutesBeautified = minutes
-            .toString()
-            .padStart(2, 0);
+    const toDoInput = document.getElementById('toDoName');
+    const createToDo = document.getElementById('saveData');
+    const btnContainer = document.querySelectorAll(
+        '.btn-container',
+    );
 
-        clock.innerHTML = `${minutesBeautified}:${secondsBeautified}`;
-        if (getTime.diff === 0) {
-            clearInterval(timerInterval);
+    btnContainer.forEach(btn => {
+        btn.addEventListener('click', async e => {
+            if (e.target.nodeName === 'I') {
+                const isEdit =
+                    e.target.classList.contains('btnEdit');
+                const toDoId = e.target.dataset.id;
+                if (isEdit) {
+                    const toDoName = e.target.dataset.name;
+                    toDoInput.value = toDoName;
+                    isEditID = toDoId;
+
+                    modal.show();
+                } else {
+                    const deleteResult = await doRequests(
+                        API_METHODS.DELETE,
+                        {},
+                        toDoId,
+                    );
+
+                    if (deleteResult) {
+                        window.location.reload();
+                    }
+                }
+            }
+        });
+    });
+
+    addBtn.addEventListener('click', () => {
+        modal.show();
+    });
+
+    toDoInput.addEventListener('input', e => {
+        if (e.target.value.trim() !== '') {
+            inputState = e.target.value;
         }
-    };
+    });
 
-    const startTimer = timerLeft => {
-        if (timerLeft) {
-            timerInterval = setInterval(tick, 1000);
+    createToDo.addEventListener('click', async () => {
+        if (isEditID) {
+            const editResult = await doRequests(
+                API_METHODS.PUT,
+                {
+                    todo_name: inputState,
+                },
+                isEditID,
+            );
+
+            if (editResult) {
+                modal.hide();
+                window.location.reload();
+            }
         } else {
-            let currentTime = Date.now();
+            if (inputState !== '') {
+                const addResult = await doRequests(
+                    API_METHODS.POST,
+                    {
+                        todo_name: inputState,
+                        completed: false,
+                    },
+                );
 
-            deadLine = new Date(
-                currentTime + timerMinutes * 60 * 1000,
-            );
-            timerInterval = setInterval(tick, 1000);
+                if (addResult) {
+                    modal.hide();
+                    window.location.reload();
+                }
+            } else {
+                alert('Поле ввода не может быть пустым.');
+            }
         }
-    };
-    const pauseTimer = () => {
-        if (!paused) {
-            paused = true;
-            clearInterval(timerInterval);
-            timerLeft = timeRemaining(deadLine).diff;
-        }
-    };
-    const resumeTimer = () => {
-        if (paused) {
-            paused = false;
-            deadLine = new Date(
-                Date.parse(new Date()) + timerLeft,
-            );
-            startTimer(true);
-        }
-    };
-
-    pauseBtn.addEventListener('click', () => {
-        pauseTimer();
-    });
-    startBtn.addEventListener('click', () => {
-        startTimer(false);
-    });
-    resumeBtn.addEventListener('click', () => {
-        resumeTimer();
     });
 };
