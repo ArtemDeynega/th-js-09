@@ -1,24 +1,43 @@
-import axios from 'axios';
+import './styles/main.scss';
 
-const BASE_URL =
-    'https://611bbc4622020a00175a46be.mockapi.io/api/v1/';
+import template from './templates/main.hbs';
+import { getUsers } from './utils/requests';
 
-const COLECTIONS = 'users/';
-const user1 = {
-    name: 'Anton Pivovarov',
-    phone: '+380986654532',
-    email: 'anton.piv@gmail.com',
+let page = 1;
+let dataState = [];
+const limit = 16;
+
+window.onload = () => {
+    const container = document.querySelector('#container');
+    const load = document.querySelector('#load');
+    getUsers(page, limit).then(users => {
+        dataState = [...users.users];
+        console.log(dataState);
+
+        container.innerHTML = template({ pageContent: dataState });
+    });
+    // load.addEventListener('click', () => {
+    //     getUsers(++page, limit).then(users => {
+    //         dataState = [...dataState, ...users.users];
+    //         console.log(dataState);
+
+    //         container.innerHTML = template({
+    //             pageContent: dataState,
+    //         });
+    //     });
+    // });
+
+    window.addEventListener('scroll', () => {
+        const { scrollTop, clientHeight, scrollHeight } =
+            document.documentElement;
+        console.log({ scrollTop, clientHeight, scrollHeight });
+        if (scrollTop + clientHeight > scrollHeight - 10) {
+            getUsers(++page, limit).then(users => {
+                dataState = [...dataState, ...users.users];
+                container.innerHTML = template({
+                    pageContent: dataState,
+                });
+            });
+        }
+    });
 };
-
-// axios
-//     .get(`${COLECTIONS}2`)
-//     .then(response => console.log(response.data))
-//     .catch(error => console.log(error.message));
-
-async function fetchConnections(userId) {
-    const response = await axios.get(`${COLECTIONS}${userId}`);
-    return response.data;
-}
-fetchConnections(3)
-    .then(data => console.log(data))
-    .catch(error => error.message);
