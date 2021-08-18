@@ -1,47 +1,24 @@
-import './styles/main.scss';
-import './styles/_button.scss';
-// import { test } from './utils/utils';
-// import menuTemplate from './templates/menu.hbs';
-import './js/conspekt';
-import './js/storage';
-import { load, save } from './js/storage';
+import axios from 'axios';
 
-// test();
+const BASE_URL =
+    'https://611bbc4622020a00175a46be.mockapi.io/api/v1/';
 
-// class Test {
-//     constructor(item) {
-//         this.item = item;
-//     }
-//     consoleItem() {
-//         console.log(this.item);
-//     }
-// }
+const COLECTIONS = 'users/';
+const user1 = {
+    name: 'Anton Pivovarov',
+    phone: '+380986654532',
+    email: 'anton.piv@gmail.com',
+};
 
-// const test1 = new Test('Привет');
+// axios
+//     .get(`${COLECTIONS}2`)
+//     .then(response => console.log(response.data))
+//     .catch(error => console.log(error.message));
 
-// test1.consoleItem();
-
-// const menuData = {
-//     title: 'Eat it createElement, templates rule!',
-//     items: ['Handlebars', 'LoDash', 'Pug', 'EJS', 'lit-html'],
-// };
-
-// const markup = menuTemplate(menuData);
-
-// const container = document.querySelector('.menu-container');
-// container.innerHTML = markup;
-
-// const dog = {
-//     name: 'Mango',
-//     age: 3,
-//     isHapy: true,
-// };
-
-// const dogJson = JSON.stringify(dog);
-
-// console.log(dogJson);
-
-// const json = '{"name":"Mango","age":3,"isHappy":true}';
-
-// const dog = JSON.parse(json);
-// console.log(dog);
+async function fetchConnections(userId) {
+    const response = await axios.get(`${COLECTIONS}${userId}`);
+    return response.data;
+}
+fetchConnections(3)
+    .then(data => console.log(data))
+    .catch(error => error.message);

@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ArtemDeynega/th-js-09#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "handlebars": "^4.7.7",
     "lodash": "^4.17.21"
   },
