@@ -5,6 +5,7 @@ import './styles/_button.scss';
 import './js/conspekt';
 import './js/storage';
 import { load, save } from './js/storage';
+import { doRequests, getUsers } from './utils/requests';
 
 // test();
 
