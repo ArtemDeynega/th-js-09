@@ -1,47 +1,92 @@
-import './styles/main.scss';
-import './styles/_button.scss';
-// import { test } from './utils/utils';
-// import menuTemplate from './templates/menu.hbs';
-import './js/conspekt';
-import './js/storage';
-import { load, save } from './js/storage';
+import "./styles/main.scss";
+import template from "./templates/main.hbs";
+import { doRequests, getUsers } from "./utils/requests";
+import { API_METHODS } from "./utils/constants";
 
-// test();
+let page = 1;
+let dataState = [];
+let inputState = "";
+let isEditID = null;
+const limit = 16;
 
-// class Test {
-//     constructor(item) {
-//         this.item = item;
-//     }
-//     consoleItem() {
-//         console.log(this.item);
-//     }
-// }
+window.onload = async () => {
+  const wrapper = document.getElementById("contentWrapper");
+  const getData = await doRequests(API_METHODS.GET);
 
-// const test1 = new Test('Привет');
+  if (getData) {
+    contentWrapper.innerHTML = template({ data: getData });
+  }
 
-// test1.consoleItem();
+  const addBtn = document.getElementById("addBtn");
 
-// const menuData = {
-//     title: 'Eat it createElement, templates rule!',
-//     items: ['Handlebars', 'LoDash', 'Pug', 'EJS', 'lit-html'],
-// };
+  // --------
 
-// const markup = menuTemplate(menuData);
+  const modal = new bootstrap.Modal(document.getElementById("exampleModal"));
 
-// const container = document.querySelector('.menu-container');
-// container.innerHTML = markup;
+  const toDoInput = document.getElementById("toDoName");
+  const createToDo = document.getElementById("saveData");
+  const btnContainer = document.querySelectorAll(".btn-container");
 
-// const dog = {
-//     name: 'Mango',
-//     age: 3,
-//     isHapy: true,
-// };
+  btnContainer.forEach(btn => {
+    btn.addEventListener("click", async e => {
+      if (e.target.nodeName === "I") {
+        const isEdit = e.target.classList.contains("btnEdit");
+        const toDoId = e.target.dataset.id;
+        if (isEdit) {
+          const toDoName = e.target.dataset.name;
+          toDoInput.value = toDoName;
+          isEditID = toDoId;
 
-// const dogJson = JSON.stringify(dog);
+          modal.show();
+        } else {
+          const deleteResult = await doRequests(API_METHODS.DELETE, {}, toDoId);
 
-// console.log(dogJson);
+          if (deleteResult) {
+            window.location.reload();
+          }
+        }
+      }
+    });
+  });
 
-// const json = '{"name":"Mango","age":3,"isHappy":true}';
+  addBtn.addEventListener("click", () => {
+    modal.show();
+  });
 
-// const dog = JSON.parse(json);
-// console.log(dog);
+  toDoInput.addEventListener("input", e => {
+    if (e.target.value.trim() !== "") {
+      inputState = e.target.value;
+    }
+  });
+
+  createToDo.addEventListener("click", async () => {
+    if (isEditID) {
+      const editResult = await doRequests(
+        API_METHODS.PUT,
+        {
+          todo_name: inputState
+        },
+        isEditID
+      );
+
+      if (editResult) {
+        modal.hide();
+        window.location.reload();
+      }
+    } else {
+      if (inputState !== "") {
+        const addResult = await doRequests(API_METHODS.POST, {
+          todo_name: inputState,
+          completed: false
+        });
+
+        if (addResult) {
+          modal.hide();
+          window.location.reload();
+        }
+      } else {
+        alert("Поле ввода не может быть пустым.");
+      }
+    }
+  });
+};
